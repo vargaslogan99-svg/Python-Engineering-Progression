@@ -1,3 +1,5 @@
 virtual_enviorment_folder/
 .env
 Tolerance_Log.txt
+*.gcode
+Print_history.csv
