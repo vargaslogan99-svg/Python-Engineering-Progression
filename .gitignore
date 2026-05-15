@@ -3,3 +3,4 @@ virtual_enviorment_folder/
 Tolerance_Log.txt
 *.gcode
 Print_history.csv
+Thermal_expansion_log.txt
