@@ -13,7 +13,7 @@ Material_dictionary = {
     "CF_Fil": 0.000040
 }
 
-def save_value(material_name, b, c, d, e):
+def save_value(material_name, b, c, d, e, f):
     Name_part = input("Enter a description for the specific part or name what this calculation is meant for: ")
     
     with open("Thermal_expansion_log.txt", "a") as file:
@@ -21,28 +21,33 @@ def save_value(material_name, b, c, d, e):
         file.write("        ==============================================================\n")
         file.write(f"        Description/name: {Name_part}\n")
         file.write(f"        The material is {material_name} and the expansion is {b}mm\n")
-        file.write(f"        the length was {c} the projected final temperature was {d}, and starting temperature was {e}\n")
+        file.write(f"        the length was {c} the projected final temperature was {d}, the starting temperature was {e}, and the type of expansion was {f}\n")
         file.write("        ==============================================================\n")
         file.write(f"  \n")
 
-def calculate_expansion(material_name, original_length, final_temp, initial_temp):
+def calculate_expansion(material_name, original_length, final_temp, initial_temp, calculation_type = "linear"):
     if material_name in Material_dictionary:  
 
         Lookup = Material_dictionary[material_name]
-        expansion = (Lookup * original_length) * (final_temp - initial_temp)
+        if calculation_type == "linear":
+            expansion = (Lookup * original_length) * (final_temp - initial_temp)
+        elif calculation_type == "area":
+            expansion = (2 * Lookup * original_length) * (final_temp - initial_temp)
+        elif calculation_type == "volume":
+            expansion = (3 * Lookup * original_length) * (final_temp - initial_temp)
+        else:
+            return "Error: Invalid calculation type."
+            
         return expansion
-    
     else:
+        return "Error: Material not found in our database."
 
-        return "There was an error during the calculation process. The " \
-        "material entered was not found in our database."
-
-print("=====================================================================")
+print("==============================================================================")
 print("this program is optimized for FDM components and materials")
 print("This will create a file on your computer called 'Thermal_expansion_log.txt' ")
 print("in your root folder if you are using an IDE ")
 print("Use at your own discretion")
-print("=====================================================================")
+print("==============================================================================")
 
 
 while True:
@@ -60,13 +65,19 @@ while True:
         
         while confirmation == 'n':
             material_choice in Material_dictionary
+            print(" ")
             User_Stemp = float(input("what will be the starting temperature you plan to subject the" \
             " material to (enter value in celsius): "))
+            print(" ")
             User_Ftemp = float(input("what will be the end temperature you plan to subject the" \
             " material to (enter value in celsius): "))
-            User_Msize = float(input("what is the length of the material you plan to use in its " \
-            "starting temperature (in mm): "))
-            print(User_Stemp,"degrees celsius",User_Ftemp,"degrees celsius",User_Msize,"mm")
+            print(" ")
+            User_Msize = float(input("what is the original size (length in mm, area in mm², or volume in mm³): "))
+            print(" ")
+            User_Ctype = input("Do you want this for 'linear', 'area', or 'volume' expansion: ").lower()
+            print(" ")
+            print(User_Stemp,"degrees celsius",User_Ftemp,"degrees celsius",User_Msize,"mm", 
+                  " type of expansion", User_Ctype)
             confirmation = input("are the input values above correct [Y/n] ")
     
     except ValueError:
@@ -74,18 +85,14 @@ while True:
         continue
     print(" ")
     print("=====================")
-    print("given the values from you, your material will likely expand",
-          (calculate_expansion(material_choice,User_Msize,User_Ftemp,User_Stemp), "mm"))
-    print("=====================")
+    print(f"Given your values, the material will likely expand by: {calculate_expansion(material_choice,User_Msize,User_Ftemp,User_Stemp,User_Ctype)} units")
+    print("=====================\n")
     print(" ")
     File_confirmation = input("would you like to save this to a text file? [Y/n]")
     if File_confirmation == 'Y':
         print("Saving your work... ")
-        save_value(material_choice,calculate_expansion(material_choice,User_Msize,User_Ftemp,User_Stemp),
-                   User_Msize,User_Ftemp,User_Stemp)
+        save_value(material_choice,calculate_expansion(material_choice,User_Msize,User_Ftemp,User_Stemp,User_Ctype),
+                   User_Msize,User_Ftemp,User_Stemp,User_Ctype)
+        print("Saved successfully.")
     
     confirmation = 'n'
-
-
-#dictionary test
-#print("The material coefficent for TPU is: ",Material_dictionary["TPU"])
